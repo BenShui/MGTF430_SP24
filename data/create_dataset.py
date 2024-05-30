@@ -41,19 +41,14 @@ with pd.HDFStore(DATA_STORE) as store:
     store.put('sp500/fred', df)
 
 
-sp500_stooq = (pd.read_csv('^spx_d.csv', index_col=0,
-                           parse_dates=True).loc['2010':'2023'].rename(columns=str.lower))
-print(sp500_stooq.info())
-
-with pd.HDFStore(DATA_STORE) as store:
-    store.put('sp500/stooq', sp500_stooq)
-
 
 url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
 df = pd.read_html(url, header=0)[0]
-df.columns = ['ticker', 'name', 'sec_filings', 'gics_sector', 'gics_sub_industry',
+df.columns = ['ticker', 'name', 'gics_sector', 'gics_sub_industry',
               'location', 'first_added', 'cik', 'founded']
-df = df.drop('sec_filings', axis=1).set_index('ticker')
 with pd.HDFStore(DATA_STORE) as store:
     store.put('sp500/stocks', df)
 
+df = pd.read_csv('us_equities_meta_data.csv')
+with pd.HDFStore(DATA_STORE) as store:
+    store.put('us_equities/stocks', df.set_index('ticker'))
