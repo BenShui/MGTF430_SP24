@@ -24,7 +24,6 @@ with pd.HDFStore(DATA_STORE) as store:
             .rename(columns=lambda x: x.replace('adj_', '')))
     metadata = store['us_equities/stocks'].loc[:, ['marketcap', 'sector']]
 
-data.info(null_counts=True)
 metadata.sector = pd.factorize(metadata.sector)[0]
 data = data.join(metadata).dropna(subset=['sector'])
 print(f"# Tickers: {len(data.index.unique('ticker')):,.0f} | # Dates: {len(data.index.unique('date')):,.0f}")
@@ -39,6 +38,12 @@ to_drop = data.index.unique('ticker').difference(top500.index)
 data = data.drop(to_drop, level='ticker')
 print(f"# Tickers: {len(data.index.unique('ticker')):,.0f} | # Dates: {len(data.index.unique('date')):,.0f}")
 before = len(data)
+by_ticker = data.groupby(level='ticker')
+T = [1, 2, 3, 4, 5, 10, 21, 42, 63, 126, 252]
+for t in T:
+    data[f'ret_{t:02}'] = by_ticker.close.pct_change(t)
+data['ret_fwd'] = by_ticker.ret_01.shift(-1)
+data = data.dropna(subset=['ret_fwd'])
 data['ret'] = data.groupby('ticker').close.pct_change()
 data = data[data.ret.between(-1, 1)].drop('ret', axis=1)
 print(f'Dropped {before-len(data):,.0f}')

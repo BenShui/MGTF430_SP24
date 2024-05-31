@@ -21,7 +21,6 @@ df = (pd.read_csv('wiki_prices.csv',
                   infer_datetime_format=True)
       .sort_index())
 
-print(df.info(null_counts=True))
 with pd.HDFStore(DATA_STORE) as store:
     store.put('quandl/wiki/prices', df)
 
@@ -31,7 +30,6 @@ df = pd.read_csv('wiki_stocks.csv')
 # df = pd.concat([df.loc[:, 'code'].str.strip(),
 #                 df.loc[:, 'name'].str.split('(', expand=True)[0].str.strip().to_frame('name')], axis=1)
 
-print(df.info(null_counts=True))
 with pd.HDFStore(DATA_STORE) as store:
     store.put('quandl/wiki/stocks', df)
 
